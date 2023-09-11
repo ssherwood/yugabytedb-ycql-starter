@@ -1,0 +1,19 @@
+##
+## Default profile - these configurations are always loaded by Spring.
+##
+
+spring:
+  application:
+    name: YugabyteDB YCQL Starter
+  cassandra:
+    # https://docs.datastax.com/en/developer/java-driver/4.15/manual/core/configuration/reference/
+    contact-points: ${YCQL_CONTACT_POINTS:127.0.0.1}
+    port: ${YCQL_PORT:9042}
+    local-datacenter: ${YCQL_LOCAL_DC:datacenter1}
+    username: ${YCQL_USERNAME:yugabyte}
+    password: ${YCQL_PASSWORD:yugabyte}
+    keyspace-name: ${YCQL_KEYSPACE_NAME:yugabyte}
+    schema-action: ${YCQL_SCHEMA_ACTION:none}
+    compression: ${YCQL_COMPRESSION:lz4}
+    request:
+      consistency: ${YCQL_CONSISTENCY:local_quorum} #todo what is the default???

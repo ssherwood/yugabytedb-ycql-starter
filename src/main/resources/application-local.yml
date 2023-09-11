@@ -1,0 +1,22 @@
+###
+### Profile for use when doing local development.
+###
+### In IntelliJ, just add "local" to the Active Profiles of the Run/Debug profile of the IDE.
+###
+
+# Allow devtools to put full stack traces in REST response body (local only!)
+server:
+  error:
+    include-stacktrace: always
+
+# Enable all Actuator endpoints when running locally
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+# Additional logging
+logging.level:
+  com.datastax.oss.driver.internal.core: DEBUG
+  com.yugabyte.oss.driver.internal.core: DEBUG
