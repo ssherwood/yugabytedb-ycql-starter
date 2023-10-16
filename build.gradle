@@ -41,6 +41,10 @@ dependencies {
     testImplementation 'org.testcontainers:yugabytedb'
 }
 
+tasks.named("bootBuildImage") {
+    imageName = "ssherwood/${project.name}"
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
