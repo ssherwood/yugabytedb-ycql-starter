@@ -8,7 +8,7 @@ spring:
   ssl.bundle.pem:
     yugabytedb-ca:
       truststore:
-        certificate: "classpath:ca.crt"
+        certificate: ${YCQL_CA_PATH:classpath:ca.crt}
   cassandra: # https://docs.datastax.com/en/developer/java-driver/4.15/manual/core/configuration/reference/
     contact-points: ${YCQL_CONTACT_POINTS:127.0.0.1}
     port: ${YCQL_PORT:9042}
@@ -18,19 +18,17 @@ spring:
     local-datacenter: ${YCQL_LOCAL_DC:datacenter1} # use the same region/az topology as the application
     username: ${YCQL_USERNAME:yugabyte}
     password: ${YCQL_PASSWORD:yugabyte}
-    keyspace-name: ${YCQL_KEYSPACE_NAME:example}
+    keyspace-name: ${YCQL_KEYSPACE_NAME:demo}
     schema-action: ${YCQL_SCHEMA_ACTION:none}
     # Compression is an option and may be helpful if you have large requests/results (like large batch ops);
     # In most other cases the benefit isn't worth the extra overhead
     #compression: ${YCQL_COMPRESSION:lz4}
     connection:
-      connect-timeout: ${YCQL_CONNECTION_TIMEOUT:5s}
+      connect-timeout: ${YCQL_CONNECTION_TIMEOUT:6s}
     request:
       timeout: ${YCQL_REQUEST_TIMEOUT:3s} # TODO is this the default?
-      # LOCAL_ONE (default) is a consistent read in YugabyteDB, requests will be sent to the tablet leader for
-      # the most consistent view of the data.
       # ONE will perform "follower" reads from local-datacenter nodes as long as the data is not older than
       # max_stale_read_bound_time_ms.
       # see https://docs.yugabyte.com/preview/explore/ysql-language-features/going-beyond-sql/follower-reads-ycql/
-      consistency: ${YCQL_CONSISTENCY:local_one}
-      serial-consistency: ${YCQL_SERIAL_CONSISTENCY:serial} # YB always defaults to SERIAL
+      consistency: ${YCQL_CONSISTENCY:quorum} # by default all reads/writes are quorum consistent, use local_one for follower reads
+      serial-consistency: ${YCQL_SERIAL_CONSISTENCY:serial} # all transactions are effectively serial

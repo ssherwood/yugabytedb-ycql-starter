@@ -7,7 +7,11 @@ import org.springframework.data.cassandra.repository.support.SimpleCassandraRepo
 import org.springframework.util.Assert;
 
 /**
- * From https://stackoverflow.com/questions/34505376/ttl-support-in-spring-boot-application-using-spring-data-cassandra
+ * Spring Data Cassandra does not have a built-in interface of saving data with a TTL.
+ * <p>
+ * This Repository extension class adds that capability and can be extended further if necessary.
+ * <p>
+ * See: https://stackoverflow.com/questions/34505376/ttl-support-in-spring-boot-application-using-spring-data-cassandra
  *
  * @param <T>
  * @param <ID>
@@ -19,7 +23,6 @@ public class ExtendedCassandraRepositoryImpl<T, ID> extends SimpleCassandraRepos
 
     public ExtendedCassandraRepositoryImpl(CassandraEntityInformation<T, ID> metadata, CassandraOperations operations) {
         super(metadata, operations);
-
         this.entityInformation = metadata;
         this.operations = operations;
     }

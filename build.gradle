@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.1.3'
-    id 'io.spring.dependency-management' version '1.1.3'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'io.undertree.starter'
@@ -29,22 +29,25 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation('org.springframework.boot:spring-boot-starter-data-cassandra') {
         exclude group: 'com.datastax.cassandra', module: 'cassandra-driver-core'
+        exclude group: 'com.datastax.oss', module: 'java-driver-core'
     }
-    implementation 'com.yugabyte:java-driver-core:4.15.0-yb-1'
-    implementation 'net.jpountz.lz4:lz4:1.3.0'
+    implementation 'com.yugabyte:java-driver-core:4.15.0-yb-2'
+    //implementation 'net.jpountz.lz4:lz4:1.3.0'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:yugabytedb'
 }
 
-tasks.named("bootBuildImage") {
-    imageName = "ssherwood/${project.name}"
-}
-
 tasks.named('test') {
     useJUnitPlatform()
+    //jvmArgs("-Xshare:off")
+}
+
+tasks.named("bootBuildImage") {
+    imageName = "ssherwood/${project.name}"
 }

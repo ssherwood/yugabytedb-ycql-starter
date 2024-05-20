@@ -1,7 +1,6 @@
 package io.undertree.starter.ycql.config;
 
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
-import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.internal.core.connection.ExponentialReconnectionPolicy;
 import com.datastax.oss.driver.internal.core.retry.DefaultRetryPolicy;
 import com.yugabyte.oss.driver.internal.core.loadbalancing.PartitionAwarePolicy;
@@ -16,6 +15,7 @@ import org.springframework.data.cassandra.core.convert.CassandraConverter;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
 
 import java.time.Duration;
+import java.util.UUID;
 
 /**
  * Example Spring Boot configuration extensions for customizing the YCQL
@@ -27,37 +27,42 @@ import java.time.Duration;
 @EnableCassandraRepositories(basePackages = "io.undertree.starter.ycql", repositoryBaseClass = ExtendedCassandraRepositoryImpl.class)
 public class YugabyteDBConfig {
 
+    /**
+     * Use this to override/configure driver level settings that can not be specified
+     * with Spring Boot config parameters.
+     *
+     * @return
+     */
     @Bean
     public DriverConfigLoaderBuilderCustomizer customize() {
         return builder -> builder
                 .withString(DefaultDriverOption.PROTOCOL_VERSION, "V4")
+                .withClass(DefaultDriverOption.LOAD_BALANCING_POLICY_CLASS, PartitionAwarePolicy.class)
+                .withClass(DefaultDriverOption.RETRY_POLICY_CLASS, DefaultRetryPolicy.class) // this is default, very conservative
+                .withClass(DefaultDriverOption.RECONNECTION_POLICY_CLASS, ExponentialReconnectionPolicy.class)
+                .withInt(DefaultDriverOption.RECONNECTION_BASE_DELAY, 1) // same as default
+                .withInt(DefaultDriverOption.RECONNECTION_MAX_DELAY, 60)
                 .withDuration(DefaultDriverOption.METADATA_SCHEMA_REQUEST_TIMEOUT, Duration.ofSeconds(5));
     }
 
+
     /**
-     * This config isn't required since the default load balancer is already PartitionAware... but just in case
-     * additional configurations are required.
+     *
+     * @return
      */
     @Bean
     public CqlSessionBuilderCustomizer cqlSessionCustomizer() {
         return cqlSessionBuilder -> cqlSessionBuilder
-                //.withSslContext() <- this can be done by boot's "spring.ssl.bundle.pem":
-                .withConfigLoader(
-                        DriverConfigLoader.programmaticBuilder()
-                                .withClass(DefaultDriverOption.LOAD_BALANCING_POLICY_CLASS, PartitionAwarePolicy.class) // Yugabyte Tablet Aware
-                                .withClass(DefaultDriverOption.RETRY_POLICY_CLASS, DefaultRetryPolicy.class) // this is default, very conservative
-                                .withClass(DefaultDriverOption.RECONNECTION_POLICY_CLASS, ExponentialReconnectionPolicy.class)
-                                .withInt(DefaultDriverOption.RECONNECTION_BASE_DELAY, 1) // same as default
-                                .withInt(DefaultDriverOption.RECONNECTION_MAX_DELAY, 60) // same as default
-                                .build()
-                );
+                //.withNodeDistanceEvaluator() <- TODO find out if this will restrict connection to local DC only
+                .withClientId(UUID.fromString("a78e660b-135e-4ba4-8415-a136e5cf372a"));
+                //.withSslContext() <- better to use `spring.ssl.bundle.pem`
+                // WARNING: don't override withConfigLoader() here - it breaks some SDC autoconfig properties
     }
 
     @Bean
     public CassandraTemplate cassandraTemplate(SessionFactory sessionFactory, CassandraConverter converter) {
         var template = new CassandraTemplate(sessionFactory, converter);
-        template.setUsePreparedStatements(true); // TODO just to test perf differences (if any)
-        // so far it seems like ~5% CPU savings on YBDB with it enabled
+        // customize the template here:
         return template;
     }
 }

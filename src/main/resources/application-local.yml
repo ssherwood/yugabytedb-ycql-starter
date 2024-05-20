@@ -18,5 +18,5 @@ management:
 
 # Additional logging
 logging.level:
-  com.datastax.oss.driver.internal.core: DEBUG
-  com.yugabyte.oss.driver.internal.core: DEBUG
+  com.datastax.oss.driver: TRACE
+  com.yugabyte.oss.driver: TRACE

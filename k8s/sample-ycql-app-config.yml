@@ -7,8 +7,11 @@ metadata:
   name: sample-ycql-app-config
   namespace: default
 data:
-  YCQL_CONTACT_POINTS: "10.204.0.130,10.204.0.111,10.204.0.122,10.204.0.131,10.204.0.121"
+  SPRING_PROFILES_ACTIVE: "k8s"
+  YCQL_CONTACT_POINTS: "10.204.0.57,10.204.0.52,10.204.0.97"
   YCQL_SSL_ENABLED: "true"
+  YCQL_CA_PATH: "classpath:ca2.crt"
   YCQL_LOCAL_DC: "us-east1"
   YCQL_KEYSPACE_NAME: "example"
-  YCQL_CONSISTENCY: "quorum"
+  YCQL_CONSISTENCY: "local_one"
+  YCQL_SERIAL_CONSISTENCY: "serial"
